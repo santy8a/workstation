@@ -30,4 +30,6 @@ Personal Cloud & AI Architect workstation configuration.
 ### Windows
 
 ```powershell
+# Instala git
+winget install --id Git.Git -e --source winget
 .\bootstrap\bootstrap.ps1

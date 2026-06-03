@@ -58,11 +58,22 @@ BASE_PACKAGES=(
   bat
   direnv
   postgresql-client
+  python3
+  python3-pip
+  python3-venv
 )
 
 for package in "${BASE_PACKAGES[@]}"; do
   install_apt_package "$package"
 done
+
+# Ubuntu instala bat como batcat
+if ! is_installed bat && is_installed batcat; then
+  mkdir -p "$HOME/.local/bin"
+  ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
+  export PATH="$HOME/.local/bin:$PATH"
+  echo "[OK] Alias binario bat -> batcat creado"
+fi
 
 log "Instalando Azure CLI"
 if is_installed az; then
@@ -112,7 +123,6 @@ log "Instalando GitHub CLI"
 if is_installed gh; then
   echo "[OK] GitHub CLI ya está instalado"
 else
-  type -p curl >/dev/null || sudo apt install curl -y
   curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | \
     sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
 
@@ -138,14 +148,20 @@ log "Instalando k9s"
 if is_installed k9s; then
   echo "[OK] k9s ya está instalado"
 else
-  curl -sS https://webinstall.dev/k9s | bash
+  K9S_VERSION="$(curl -s https://api.github.com/repos/derailed/k9s/releases/latest | jq -r '.tag_name')"
+  curl -Lo k9s.tar.gz "https://github.com/derailed/k9s/releases/download/${K9S_VERSION}/k9s_Linux_amd64.tar.gz"
+  tar -xzf k9s.tar.gz k9s
+  sudo install -m 0755 k9s /usr/local/bin/k9s
+  rm -f k9s k9s.tar.gz
 fi
 
 log "Instalando kubectx y kubens"
-if is_installed kubectx; then
-  echo "[OK] kubectx ya está instalado"
+if is_installed kubectx && is_installed kubens; then
+  echo "[OK] kubectx/kubens ya están instalados"
 else
-  sudo git clone https://github.com/ahmetb/kubectx /opt/kubectx
+  if [[ ! -d /opt/kubectx ]]; then
+    sudo git clone https://github.com/ahmetb/kubectx /opt/kubectx
+  fi
   sudo ln -sf /opt/kubectx/kubectx /usr/local/bin/kubectx
   sudo ln -sf /opt/kubectx/kubens /usr/local/bin/kubens
 fi
@@ -154,10 +170,10 @@ log "Instalando terraform-docs"
 if is_installed terraform-docs; then
   echo "[OK] terraform-docs ya está instalado"
 else
-  curl -sSLo ./terraform-docs.tar.gz https://terraform-docs.io/dl/v0.19.0/terraform-docs-v0.19.0-linux-amd64.tar.gz
+  curl -sSLo terraform-docs.tar.gz https://terraform-docs.io/dl/v0.19.0/terraform-docs-v0.19.0-linux-amd64.tar.gz
   tar -xzf terraform-docs.tar.gz
   sudo install -m 0755 terraform-docs /usr/local/bin/terraform-docs
-  rm terraform-docs terraform-docs.tar.gz
+  rm -f terraform-docs terraform-docs.tar.gz
 fi
 
 log "Instalando tflint"
@@ -167,33 +183,28 @@ else
   curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 fi
 
-log "Instalando Python tooling"
-install_apt_package python3
-install_apt_package python3-pip
-install_apt_package python3-venv
-
+log "Instalando pipx"
 if is_installed pipx; then
   echo "[OK] pipx ya está instalado"
 else
   python3 -m pip install --user pipx
   python3 -m pipx ensurepath
+  export PATH="$HOME/.local/bin:$PATH"
 fi
 
+log "Instalando uv"
 if is_installed uv; then
   echo "[OK] uv ya está instalado"
 else
   curl -LsSf https://astral.sh/uv/install.sh | sh
+  export PATH="$HOME/.local/bin:$PATH"
 fi
 
 log "Instalando Ansible mediante pipx"
 if is_installed ansible; then
   echo "[OK] Ansible ya está instalado"
 else
-  if command -v pipx >/dev/null 2>&1; then
-    pipx install --include-deps ansible
-  else
-    echo "[WARN] pipx no disponible todavía. Cierra y abre WSL y vuelve a ejecutar el script."
-  fi
+  pipx install --include-deps ansible
 fi
 
 log "Instalando Azure Developer CLI azd"
@@ -243,6 +254,7 @@ TOOLS=(
   ansible
   azd
   docker
+  bat
 )
 
 for tool in "${TOOLS[@]}"; do

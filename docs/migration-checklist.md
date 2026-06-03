@@ -136,49 +136,62 @@ cd C:\Dev\Personal\workstation
 
 ---
 
-7. Fase 4 - Instalar Ubuntu 24.04 en WSL
+## 7. Fase 4 - Instalar Ubuntu 24.04 en WSL
 
 Ejecutar:
 
+```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\bootstrap\install-wsl-ubuntu.ps1
+```
 
 Este script:
 
-Actualiza WSL
-Configura WSL2 como versión por defecto
-Instala Ubuntu 24.04
-Utiliza --no-launch para evitar problemas durante el asistente inicial (OOBE)
-Utiliza --web-download para evitar dependencias de Microsoft Store
-Configura Ubuntu 24.04 como distribución por defecto
+* Actualiza WSL
+* Configura WSL2 como versión por defecto
+* Instala Ubuntu 24.04
+* Utiliza `--no-launch` para evitar problemas durante el asistente inicial (OOBE)
+* Utiliza `--web-download` para evitar dependencias de Microsoft Store
+* Configura Ubuntu 24.04 como distribución por defecto
 
 La instalación se realiza mediante:
 
+```powershell
 wsl --install -d Ubuntu-24.04 --no-launch --web-download
+```
 
 Esto instala Ubuntu pero NO la inicia automáticamente.
 
 Verificar:
 
+```powershell
 wsl -l -v
+```
 
 Resultado esperado:
 
+```text
 NAME            STATE      VERSION
 Ubuntu-24.04    Stopped    2
+```
 
-Estado Stopped es completamente normal después de la instalación.
+Estado `Stopped` es completamente normal después de la instalación.
+
 ---
 
-8. Fase 5 - Primer arranque de Ubuntu
+## 8. Fase 5 - Primer arranque de Ubuntu
 
 Una vez finalizada la instalación:
 
+```powershell
 wsl -d Ubuntu-24.04
+```
 
 o abrir:
 
+```text
 Ubuntu 24.04 LTS
+```
 
 desde el menú inicio.
 
@@ -186,30 +199,41 @@ Durante el primer arranque Ubuntu ejecutará el asistente OOBE (Out Of Box Exper
 
 Solicitará:
 
+```text
 Enter new UNIX username:
+```
 
 Usuario recomendado:
 
+```text
 santiago
+```
 
 Posteriormente solicitará:
 
+```text
 New password:
 Retype new password:
+```
 
 Esta contraseña será la contraseña administrativa Linux (sudo).
 
 Tras finalizar la creación del usuario verificar:
 
+```bash
 whoami
 pwd
 cat /etc/os-release
+```
 
 Resultado esperado:
 
+```text
 santiago
 /home/santiago
 Ubuntu 24.04 LTS
+```
+
 ---
 
 ## 9. Fase 6 - Preparar repositorio dentro de WSL

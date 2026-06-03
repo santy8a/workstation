@@ -30,6 +30,25 @@ Personal Cloud & AI Architect workstation configuration.
 ### Windows
 
 ```powershell
-# Instala git
+# Install Git
 winget install --id Git.Git -e --source winget
+
+# Verify installation:
+git --version
+
+# Clone Repository
+mkdir C:\Dev\Personal
+cd C:\Dev\Personal
+git clone https://github.com/santy8a/workstation.git
+```
+
+### Run bootstrap (Windows)
+
+```powershell
+cd workstation
 .\bootstrap\bootstrap.ps1
+```
+
+### Run bootstrap (WSL):
+
+./bootstrap/bootstrap.sh

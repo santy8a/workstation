@@ -187,8 +187,8 @@ log "Instalando pipx"
 if is_installed pipx; then
   echo "[OK] pipx ya está instalado"
 else
-  python3 -m pip install --user pipx
-  python3 -m pipx ensurepath
+  install_apt_package pipx
+  pipx ensurepath
   export PATH="$HOME/.local/bin:$PATH"
 fi
 

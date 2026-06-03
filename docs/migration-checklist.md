@@ -136,60 +136,80 @@ cd C:\Dev\Personal\workstation
 
 ---
 
-## 7. Fase 4 - Instalar Ubuntu 24.04 en WSL
+7. Fase 4 - Instalar Ubuntu 24.04 en WSL
 
 Ejecutar:
 
-```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\bootstrap\install-wsl-ubuntu.ps1
-```
 
 Este script:
 
-* Verifica que WSL esté disponible
-* Configura WSL2 como versión por defecto
-* Instala Ubuntu 24.04 si no existe
-* Define Ubuntu 24.04 como distribución por defecto
-* Muestra el estado final de WSL
+Actualiza WSL
+Configura WSL2 como versión por defecto
+Instala Ubuntu 24.04
+Utiliza --no-launch para evitar problemas durante el asistente inicial (OOBE)
+Utiliza --web-download para evitar dependencias de Microsoft Store
+Configura Ubuntu 24.04 como distribución por defecto
+
+La instalación se realiza mediante:
+
+wsl --install -d Ubuntu-24.04 --no-launch --web-download
+
+Esto instala Ubuntu pero NO la inicia automáticamente.
 
 Verificar:
 
-```powershell
 wsl -l -v
-```
 
 Resultado esperado:
 
-```text
 NAME            STATE      VERSION
-Ubuntu-24.04    Running    2
-```
+Ubuntu-24.04    Stopped    2
 
+Estado Stopped es completamente normal después de la instalación.
 ---
 
-## 8. Fase 5 - Primer arranque de Ubuntu
+8. Fase 5 - Primer arranque de Ubuntu
 
-Abrir Ubuntu 24.04 desde el menú inicio o ejecutar:
+Una vez finalizada la instalación:
 
-```powershell
-wsl
-```
+wsl -d Ubuntu-24.04
 
-Crear usuario Linux cuando lo solicite.
+o abrir:
 
-Verificar versión:
+Ubuntu 24.04 LTS
 
-```bash
+desde el menú inicio.
+
+Durante el primer arranque Ubuntu ejecutará el asistente OOBE (Out Of Box Experience).
+
+Solicitará:
+
+Enter new UNIX username:
+
+Usuario recomendado:
+
+santiago
+
+Posteriormente solicitará:
+
+New password:
+Retype new password:
+
+Esta contraseña será la contraseña administrativa Linux (sudo).
+
+Tras finalizar la creación del usuario verificar:
+
+whoami
+pwd
 cat /etc/os-release
-```
 
 Resultado esperado:
 
-```text
+santiago
+/home/santiago
 Ubuntu 24.04 LTS
-```
-
 ---
 
 ## 9. Fase 6 - Preparar repositorio dentro de WSL

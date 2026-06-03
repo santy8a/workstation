@@ -1,0 +1,258 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+echo "======================================"
+echo "WSL Bootstrap - Cloud / AI Architect"
+echo "======================================"
+
+if [[ "$EUID" -eq 0 ]]; then
+  echo "No ejecutes este script como root. Ejecútalo con tu usuario normal."
+  exit 1
+fi
+
+log() {
+  echo ""
+  echo "==> $1"
+}
+
+is_installed() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+install_apt_package() {
+  local package="$1"
+
+  if dpkg -s "$package" >/dev/null 2>&1; then
+    echo "[OK] $package ya está instalado"
+  else
+    echo "[INSTALL] $package"
+    sudo apt-get install -y "$package"
+  fi
+}
+
+log "Actualizando sistema base"
+sudo apt-get update -y
+
+log "Instalando utilidades base"
+BASE_PACKAGES=(
+  ca-certificates
+  curl
+  wget
+  gnupg
+  lsb-release
+  apt-transport-https
+  software-properties-common
+  unzip
+  zip
+  git
+  jq
+  tree
+  htop
+  make
+  build-essential
+  dnsutils
+  netcat-openbsd
+  ripgrep
+  fzf
+  bat
+  direnv
+  postgresql-client
+)
+
+for package in "${BASE_PACKAGES[@]}"; do
+  install_apt_package "$package"
+done
+
+log "Instalando Azure CLI"
+if is_installed az; then
+  echo "[OK] Azure CLI ya está instalado"
+else
+  curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+fi
+
+log "Instalando Terraform"
+if is_installed terraform; then
+  echo "[OK] Terraform ya está instalado"
+else
+  wget -O- https://apt.releases.hashicorp.com/gpg | \
+    sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+  echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+    sudo tee /etc/apt/sources.list.d/hashicorp.list >/dev/null
+
+  sudo apt-get update -y
+  sudo apt-get install -y terraform
+fi
+
+log "Instalando kubectl"
+if is_installed kubectl; then
+  echo "[OK] kubectl ya está instalado"
+else
+  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+  rm kubectl
+fi
+
+log "Instalando kubelogin"
+if is_installed kubelogin; then
+  echo "[OK] kubelogin ya está instalado"
+else
+  az aks install-cli
+fi
+
+log "Instalando Helm"
+if is_installed helm; then
+  echo "[OK] Helm ya está instalado"
+else
+  curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+fi
+
+log "Instalando GitHub CLI"
+if is_installed gh; then
+  echo "[OK] GitHub CLI ya está instalado"
+else
+  type -p curl >/dev/null || sudo apt install curl -y
+  curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | \
+    sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+
+  sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | \
+    sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+
+  sudo apt-get update -y
+  sudo apt-get install -y gh
+fi
+
+log "Instalando yq"
+if is_installed yq; then
+  echo "[OK] yq ya está instalado"
+else
+  sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
+    -O /usr/local/bin/yq
+  sudo chmod +x /usr/local/bin/yq
+fi
+
+log "Instalando k9s"
+if is_installed k9s; then
+  echo "[OK] k9s ya está instalado"
+else
+  curl -sS https://webinstall.dev/k9s | bash
+fi
+
+log "Instalando kubectx y kubens"
+if is_installed kubectx; then
+  echo "[OK] kubectx ya está instalado"
+else
+  sudo git clone https://github.com/ahmetb/kubectx /opt/kubectx
+  sudo ln -sf /opt/kubectx/kubectx /usr/local/bin/kubectx
+  sudo ln -sf /opt/kubectx/kubens /usr/local/bin/kubens
+fi
+
+log "Instalando terraform-docs"
+if is_installed terraform-docs; then
+  echo "[OK] terraform-docs ya está instalado"
+else
+  curl -sSLo ./terraform-docs.tar.gz https://terraform-docs.io/dl/v0.19.0/terraform-docs-v0.19.0-linux-amd64.tar.gz
+  tar -xzf terraform-docs.tar.gz
+  sudo install -m 0755 terraform-docs /usr/local/bin/terraform-docs
+  rm terraform-docs terraform-docs.tar.gz
+fi
+
+log "Instalando tflint"
+if is_installed tflint; then
+  echo "[OK] tflint ya está instalado"
+else
+  curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+fi
+
+log "Instalando Python tooling"
+install_apt_package python3
+install_apt_package python3-pip
+install_apt_package python3-venv
+
+if is_installed pipx; then
+  echo "[OK] pipx ya está instalado"
+else
+  python3 -m pip install --user pipx
+  python3 -m pipx ensurepath
+fi
+
+if is_installed uv; then
+  echo "[OK] uv ya está instalado"
+else
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+fi
+
+log "Instalando Ansible mediante pipx"
+if is_installed ansible; then
+  echo "[OK] Ansible ya está instalado"
+else
+  if command -v pipx >/dev/null 2>&1; then
+    pipx install --include-deps ansible
+  else
+    echo "[WARN] pipx no disponible todavía. Cierra y abre WSL y vuelve a ejecutar el script."
+  fi
+fi
+
+log "Instalando Azure Developer CLI azd"
+if is_installed azd; then
+  echo "[OK] azd ya está instalado"
+else
+  curl -fsSL https://aka.ms/install-azd.sh | bash
+fi
+
+log "Configurando shell profile"
+WORKSTATION_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if ! grep -q "workstation/shell/profile.sh" ~/.bashrc 2>/dev/null; then
+  cat <<EOF >> ~/.bashrc
+
+# Workstation shell profile
+if [ -f "$WORKSTATION_DIR/shell/profile.sh" ]; then
+  source "$WORKSTATION_DIR/shell/profile.sh"
+fi
+EOF
+  echo "[OK] profile.sh añadido a ~/.bashrc"
+else
+  echo "[OK] profile.sh ya estaba referenciado en ~/.bashrc"
+fi
+
+log "Verificación final"
+
+TOOLS=(
+  git
+  gh
+  az
+  terraform
+  kubectl
+  kubelogin
+  helm
+  jq
+  yq
+  k9s
+  kubectx
+  kubens
+  terraform-docs
+  tflint
+  psql
+  python3
+  pipx
+  uv
+  ansible
+  azd
+  docker
+)
+
+for tool in "${TOOLS[@]}"; do
+  if is_installed "$tool"; then
+    echo "[OK] $tool -> $(command -v "$tool")"
+  else
+    echo "[MISSING] $tool"
+  fi
+done
+
+echo ""
+echo "Bootstrap Linux finalizado."
+echo "Cierra y vuelve a abrir WSL para cargar PATH, pipx, uv y profile.sh."

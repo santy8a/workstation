@@ -1,2 +1,66 @@
-# workstation
-Personal Cloud Architect workstation bootstrap, tooling, VS Code configuration and development environment automation.
+# \# Workstation
+
+# 
+
+# Personal Cloud \& AI Architect workstation configuration.
+
+# 
+
+# \## Objectives
+
+# 
+
+# \- Reproducible workstation
+
+# \- VS Code configuration
+
+# \- WSL bootstrap
+
+# \- Terraform tooling
+
+# \- Kubernetes tooling
+
+# \- Azure CLI tooling
+
+# \- AI development environment
+
+# 
+
+# \## Components
+
+# 
+
+# \- Windows
+
+# \- WSL Ubuntu
+
+# \- VS Code
+
+# \- Terraform
+
+# \- Kubectl
+
+# \- Helm
+
+# \- Ansible
+
+# \- Azure CLI
+
+# \- Docker Desktop
+
+# \- 1Password
+
+# 
+
+# \## Quick Start
+
+# 
+
+# \### Windows
+
+# 
+
+# ```powershell
+
+# .\\bootstrap\\bootstrap.ps1
+

@@ -1,66 +1,54 @@
-# \# Workstation
+# Workstation
 
-# 
+Personal Cloud & AI Architect workstation configuration.
 
-# Personal Cloud \& AI Architect workstation configuration.
+## Objectives
 
-# 
+- Reproducible workstation
+- VS Code configuration
+- WSL bootstrap
+- Terraform tooling
+- Kubernetes tooling
+- Azure CLI tooling
+- AI development environment
 
-# \## Objectives
+## Components
 
-# 
+- Windows
+- WSL Ubuntu
+- VS Code
+- Terraform
+- Kubectl
+- Helm
+- Ansible
+- Azure CLI
+- Docker Desktop
+- 1Password
 
-# \- Reproducible workstation
+## Quick Start
 
-# \- VS Code configuration
+### Windows
 
-# \- WSL bootstrap
+```powershell
+# Install Git
+winget install --id Git.Git -e --source winget
 
-# \- Terraform tooling
+# Verify installation:
+git --version
 
-# \- Kubernetes tooling
+# Clone Repository
+mkdir C:\Dev\Personal
+cd C:\Dev\Personal
+git clone https://github.com/santy8a/workstation.git
+```
 
-# \- Azure CLI tooling
+### Run bootstrap (Windows)
 
-# \- AI development environment
+```powershell
+cd workstation
+.\bootstrap\bootstrap.ps1
+```
 
-# 
+### Run bootstrap (WSL):
 
-# \## Components
-
-# 
-
-# \- Windows
-
-# \- WSL Ubuntu
-
-# \- VS Code
-
-# \- Terraform
-
-# \- Kubectl
-
-# \- Helm
-
-# \- Ansible
-
-# \- Azure CLI
-
-# \- Docker Desktop
-
-# \- 1Password
-
-# 
-
-# \## Quick Start
-
-# 
-
-# \### Windows
-
-# 
-
-# ```powershell
-
-# .\\bootstrap\\bootstrap.ps1
-
+./bootstrap/bootstrap.sh

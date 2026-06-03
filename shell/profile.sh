@@ -21,3 +21,11 @@ export PAGER=less
 if [ -f "$HOME/dev/personal/workstation/shell/aliases.sh" ]; then
   source "$HOME/dev/personal/workstation/shell/aliases.sh"
 fi
+
+#
+# Functions
+#
+
+if [ -f "$HOME/dev/personal/workstation/shell/functions.sh" ]; then
+  source "$HOME/dev/personal/workstation/shell/functions.sh"
+fi

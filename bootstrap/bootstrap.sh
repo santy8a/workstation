@@ -20,6 +20,15 @@ is_installed() {
   command -v "$1" >/dev/null 2>&1
 }
 
+is_linux_binary() {
+  local tool="$1"
+  local path
+
+  path="$(command -v "$tool" 2>/dev/null || true)"
+
+  [[ -n "$path" && "$path" != /mnt/c/* ]]
+}
+
 install_apt_package() {
   local package="$1"
 
@@ -67,7 +76,7 @@ for package in "${BASE_PACKAGES[@]}"; do
   install_apt_package "$package"
 done
 
-# Ubuntu instala bat como batcat
+# Ubuntu puede instalar bat como batcat. Creamos un wrapper compatible.
 if ! is_installed bat && is_installed batcat; then
   mkdir -p "$HOME/.local/bin"
   ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
@@ -75,11 +84,14 @@ if ! is_installed bat && is_installed batcat; then
   echo "[OK] Alias binario bat -> batcat creado"
 fi
 
-log "Instalando Azure CLI"
-if is_installed az; then
-  echo "[OK] Azure CLI ya está instalado"
+log "Instalando Azure CLI Linux"
+
+if is_linux_binary az; then
+  echo "[OK] Azure CLI Linux ya está instalado: $(command -v az)"
 else
+  echo "[INSTALL] Azure CLI Linux"
   curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+  hash -r
 fi
 
 log "Instalando Terraform"
@@ -97,31 +109,44 @@ else
 fi
 
 log "Instalando kubectl"
-if is_installed kubectl; then
-  echo "[OK] kubectl ya está instalado"
+if is_linux_binary kubectl; then
+  echo "[OK] kubectl Linux ya está instalado: $(command -v kubectl)"
 else
   curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
   sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-  rm kubectl
+  rm -f kubectl
 fi
 
-log "Instalando kubelogin"
-if is_installed kubelogin; then
-  echo "[OK] kubelogin ya está instalado"
+log "Instalando kubelogin Linux"
+if is_linux_binary kubelogin; then
+  echo "[OK] kubelogin Linux ya está instalado: $(command -v kubelogin)"
 else
-  az aks install-cli
+  echo "[INSTALL] kubelogin Linux"
+
+  KUBELOGIN_VERSION="$(curl -s https://api.github.com/repos/Azure/kubelogin/releases/latest | jq -r '.tag_name')"
+
+  curl -Lo kubelogin.zip \
+    "https://github.com/Azure/kubelogin/releases/download/${KUBELOGIN_VERSION}/kubelogin-linux-amd64.zip"
+
+  unzip -o kubelogin.zip -d kubelogin-tmp
+
+  sudo install -m 0755 \
+    kubelogin-tmp/bin/linux_amd64/kubelogin \
+    /usr/local/bin/kubelogin
+
+  rm -rf kubelogin.zip kubelogin-tmp
 fi
 
 log "Instalando Helm"
-if is_installed helm; then
-  echo "[OK] Helm ya está instalado"
+if is_linux_binary helm; then
+  echo "[OK] Helm Linux ya está instalado: $(command -v helm)"
 else
   curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 fi
 
 log "Instalando GitHub CLI"
-if is_installed gh; then
-  echo "[OK] GitHub CLI ya está instalado"
+if is_linux_binary gh; then
+  echo "[OK] GitHub CLI Linux ya está instalado: $(command -v gh)"
 else
   curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | \
     sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
@@ -136,8 +161,8 @@ else
 fi
 
 log "Instalando yq"
-if is_installed yq; then
-  echo "[OK] yq ya está instalado"
+if is_linux_binary yq; then
+  echo "[OK] yq Linux ya está instalado: $(command -v yq)"
 else
   sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
     -O /usr/local/bin/yq
@@ -145,8 +170,8 @@ else
 fi
 
 log "Instalando k9s"
-if is_installed k9s; then
-  echo "[OK] k9s ya está instalado"
+if is_linux_binary k9s; then
+  echo "[OK] k9s Linux ya está instalado: $(command -v k9s)"
 else
   K9S_VERSION="$(curl -s https://api.github.com/repos/derailed/k9s/releases/latest | jq -r '.tag_name')"
   curl -Lo k9s.tar.gz "https://github.com/derailed/k9s/releases/download/${K9S_VERSION}/k9s_Linux_amd64.tar.gz"
@@ -156,7 +181,7 @@ else
 fi
 
 log "Instalando kubectx y kubens"
-if is_installed kubectx && is_installed kubens; then
+if is_linux_binary kubectx && is_linux_binary kubens; then
   echo "[OK] kubectx/kubens ya están instalados"
 else
   if [[ ! -d /opt/kubectx ]]; then
@@ -167,8 +192,8 @@ else
 fi
 
 log "Instalando terraform-docs"
-if is_installed terraform-docs; then
-  echo "[OK] terraform-docs ya está instalado"
+if is_linux_binary terraform-docs; then
+  echo "[OK] terraform-docs ya está instalado: $(command -v terraform-docs)"
 else
   curl -sSLo terraform-docs.tar.gz https://terraform-docs.io/dl/v0.19.0/terraform-docs-v0.19.0-linux-amd64.tar.gz
   tar -xzf terraform-docs.tar.gz
@@ -177,8 +202,8 @@ else
 fi
 
 log "Instalando tflint"
-if is_installed tflint; then
-  echo "[OK] tflint ya está instalado"
+if is_linux_binary tflint; then
+  echo "[OK] tflint ya está instalado: $(command -v tflint)"
 else
   curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 fi
@@ -188,28 +213,29 @@ if is_installed pipx; then
   echo "[OK] pipx ya está instalado"
 else
   install_apt_package pipx
-  pipx ensurepath
-  export PATH="$HOME/.local/bin:$PATH"
 fi
 
+pipx ensurepath || true
+export PATH="$HOME/.local/bin:$PATH"
+
 log "Instalando uv"
-if is_installed uv; then
-  echo "[OK] uv ya está instalado"
+if is_linux_binary uv; then
+  echo "[OK] uv ya está instalado: $(command -v uv)"
 else
   curl -LsSf https://astral.sh/uv/install.sh | sh
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
 log "Instalando Ansible mediante pipx"
-if is_installed ansible; then
-  echo "[OK] Ansible ya está instalado"
+if is_linux_binary ansible; then
+  echo "[OK] Ansible ya está instalado: $(command -v ansible)"
 else
   pipx install --include-deps ansible
 fi
 
 log "Instalando Azure Developer CLI azd"
-if is_installed azd; then
-  echo "[OK] azd ya está instalado"
+if is_linux_binary azd; then
+  echo "[OK] azd ya está instalado: $(command -v azd)"
 else
   curl -fsSL https://aka.ms/install-azd.sh | bash
 fi
@@ -229,6 +255,8 @@ EOF
 else
   echo "[OK] profile.sh ya estaba referenciado en ~/.bashrc"
 fi
+
+hash -r
 
 log "Verificación final"
 
@@ -262,6 +290,21 @@ for tool in "${TOOLS[@]}"; do
     echo "[OK] $tool -> $(command -v "$tool")"
   else
     echo "[MISSING] $tool"
+  fi
+done
+
+echo ""
+echo "=== Linux Native Validation ==="
+
+for tool in az kubectl kubelogin helm gh yq k9s terraform-docs tflint azd; do
+  path="$(command -v "$tool" 2>/dev/null || true)"
+
+  if [[ -z "$path" ]]; then
+    echo "[MISSING] $tool"
+  elif [[ "$path" == /mnt/c/* ]]; then
+    echo "[WARN] $tool está usando binario Windows: $path"
+  else
+    echo "[OK] $tool usa binario Linux: $path"
   fi
 done
 

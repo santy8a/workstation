@@ -427,3 +427,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Workstation audit results
+scripts/helpers/workstation-audit.txt

@@ -1,0 +1,26 @@
+# Default: normalize text files
+* text=auto
+
+# Shell scripts must always use LF
+*.sh text eol=lf
+
+# PowerShell scripts can use Windows endings
+*.ps1 text eol=crlf
+
+# Markdown can be normalized
+*.md text eol=lf
+
+# JSON/YAML should use LF
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Keep binaries untouched
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary

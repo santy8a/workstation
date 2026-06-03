@@ -1,21 +1,79 @@
 # Default: normalize text files
+
 * text=auto
 
-# Shell scripts must always use LF
+# =========================
+
+# Linux Scripts
+
+# =========================
+
 *.sh text eol=lf
+*.bash text eol=lf
 
-# PowerShell scripts can use Windows endings
+# =========================
+
+# PowerShell
+
+# =========================
+
 *.ps1 text eol=crlf
+*.psm1 text eol=crlf
 
-# Markdown can be normalized
+# =========================
+
+# Documentation
+
+# =========================
+
 *.md text eol=lf
+*.txt text eol=lf
 
-# JSON/YAML should use LF
+# =========================
+
+# Configuration Files
+
+# =========================
+
 *.json text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
+*.tf text eol=lf
+*.tfvars text eol=lf
+*.hcl text eol=lf
 
-# Keep binaries untouched
+# =========================
+
+# Source Code
+
+# =========================
+
+*.py text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+
+# =========================
+
+# VSCode
+
+# =========================
+
+.vscode/* text eol=lf
+
+# =========================
+
+# Draw.io
+
+# =========================
+
+*.drawio text eol=lf
+
+# =========================
+
+# Binary Files
+
+# =========================
+
 *.png binary
 *.jpg binary
 *.jpeg binary
@@ -23,4 +81,9 @@
 *.ico binary
 *.pdf binary
 *.zip binary
-*.tar.gz binary
+*.tar binary
+*.gz binary
+*.tgz binary
+*.7z binary
+*.exe binary
+*.dll binary

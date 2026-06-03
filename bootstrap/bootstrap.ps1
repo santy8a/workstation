@@ -36,6 +36,7 @@ function Install-WingetPackage {
 
     try {
         $result = winget list --id $Id --exact --accept-source-agreements 2>$null
+
         if ($LASTEXITCODE -eq 0 -and $result -match [regex]::Escape($Id)) {
             $isInstalled = $true
         }
@@ -91,6 +92,7 @@ function Install-VSCodeExtension {
         }
         else {
             Write-Host "Installing $ExtensionId..." -ForegroundColor Green
+
             code --install-extension $ExtensionId
 
             if ($LASTEXITCODE -eq 0) {
@@ -110,25 +112,39 @@ function Install-VSCodeExtension {
 # Windows base tools
 # ------------------------------------------------------------
 $Packages = @(
+    # Core
     @{ Id = "Git.Git"; Name = "Git for Windows" },
     @{ Id = "Microsoft.VisualStudioCode"; Name = "Visual Studio Code" },
     @{ Id = "Microsoft.WindowsTerminal"; Name = "Windows Terminal" },
     @{ Id = "Microsoft.PowerShell"; Name = "PowerShell 7" },
     @{ Id = "Google.Chrome"; Name = "Google Chrome" },
 
+    # Azure / Cloud
     @{ Id = "Microsoft.AzureCLI"; Name = "Azure CLI" },
     @{ Id = "Microsoft.Azure.StorageExplorer"; Name = "Azure Storage Explorer" },
 
+    # Containers
     @{ Id = "Docker.DockerDesktop"; Name = "Docker Desktop" },
 
+    # Security / Secrets
     @{ Id = "AgileBits.1Password"; Name = "1Password" },
     @{ Id = "AgileBits.1Password.CLI"; Name = "1Password CLI" },
 
+    # GitHub
     @{ Id = "GitHub.cli"; Name = "GitHub CLI" },
 
+    # Architecture / API / Productivity
     @{ Id = "JGraph.Draw"; Name = "Draw.io Desktop" },
     @{ Id = "Postman.Postman"; Name = "Postman" },
-    @{ Id = "Microsoft.PowerToys"; Name = "Microsoft PowerToys" }
+    @{ Id = "Microsoft.PowerToys"; Name = "Microsoft PowerToys" },
+
+    # Daily Windows utilities
+    @{ Id = "Notepad++.Notepad++"; Name = "Notepad++" },
+    @{ Id = "Greenshot.Greenshot"; Name = "Greenshot" },
+
+    # Network / Legacy troubleshooting
+    @{ Id = "PuTTY.PuTTY"; Name = "PuTTY" },
+    @{ Id = "WiresharkFoundation.Wireshark"; Name = "Wireshark" }
 )
 
 foreach ($Package in $Packages) {

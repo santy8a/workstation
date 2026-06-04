@@ -1,0 +1,5 @@
+eamodio.gitlens
+github.vscode-github-actions
+hashicorp.terraform
+ms-azuretools.vscode-azureresourcegroups
+oderwat.indent-rainbow

@@ -105,21 +105,57 @@ tf-plan-save() {
 }
 
 runbook() {
-    local name="$1"
+    local name="${1:-}"
 
     if [ -z "$name" ]; then
         echo "Usage: runbook <name>"
+        echo "Example: runbook ssh-setup"
         return 1
     fi
 
-    mkdir -p "$HOME/dev/personal/notes/runbooks/logs"
+    local logs_dir="$HOME/dev/personal/notes/runbooks/logs"
+    mkdir -p "$logs_dir"
 
-    local logfile="$HOME/dev/personal/notes/runbooks/logs/${name}-$(date +%F).log"
+    local timestamp
+    timestamp="$(date +%F-%H%M%S)"
+
+    local logfile="$logs_dir/${name}-${timestamp}.log"
+    local rcfile
+    rcfile="$(mktemp)"
+
+    cat > "$rcfile" <<EOF
+source ~/.bashrc
+PS1="[RUNBOOK:${name}] \u@\h:\w\$ "
+EOF
 
     echo ""
     echo "Starting runbook session:"
     echo "$logfile"
     echo ""
+    echo "You are about to enter a recorded shell session."
+    echo "Type 'exit' to finish and save the log."
+    echo ""
 
-    script "$logfile"
+    script "$logfile" -c "bash --rcfile $rcfile"
+
+    rm -f "$rcfile"
+}
+
+ssh-load() {
+    local key="$1"
+
+    if [ -z "$key" ]; then
+        echo "Usage: ssh-load <key>"
+        return 1
+    fi
+
+    ssh-add "$HOME/.ssh/$key"
+}
+
+ssh-eci() {
+    ssh-load id_ed25519_eci
+}
+
+ssh-keys() {
+    ssh-add -l
 }

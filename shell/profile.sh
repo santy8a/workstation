@@ -29,3 +29,11 @@ fi
 if [ -f "$HOME/dev/personal/workstation/shell/functions.sh" ]; then
   source "$HOME/dev/personal/workstation/shell/functions.sh"
 fi
+
+#
+# SSH Agent
+#
+
+if [ -z "$SSH_AUTH_SOCK" ]; then
+  eval "$(ssh-agent -s)" >/dev/null
+fi

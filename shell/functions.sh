@@ -103,3 +103,23 @@ tf-reinit() {
 tf-plan-save() {
   terraform plan -out=tfplan
 }
+
+runbook() {
+    local name="$1"
+
+    if [ -z "$name" ]; then
+        echo "Usage: runbook <name>"
+        return 1
+    fi
+
+    mkdir -p "$HOME/dev/personal/notes/runbooks/logs"
+
+    local logfile="$HOME/dev/personal/notes/runbooks/logs/${name}-$(date +%F).log"
+
+    echo ""
+    echo "Starting runbook session:"
+    echo "$logfile"
+    echo ""
+
+    script "$logfile"
+}

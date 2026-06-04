@@ -2,12 +2,23 @@
 
 set -euo pipefail
 
+echo ""
+echo "======================================="
+echo "VSCode WSL Configuration"
+echo "======================================="
+echo ""
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
+SETTINGS_FILE="$REPO_ROOT/vscode/settings.json"
 EXTENSIONS_FILE="$REPO_ROOT/vscode/extensions-wsl.txt"
 
-echo "Installing VSCode WSL extensions..."
+#
+# Install extensions
+#
+
+echo "Installing VSCode extensions..."
 
 while read -r extension; do
 
@@ -19,5 +30,18 @@ while read -r extension; do
 
 done < "$EXTENSIONS_FILE"
 
+#
+# Settings
+#
+
 echo ""
-echo "VSCode WSL extensions installed."
+echo "Installing VSCode settings..."
+
+mkdir -p ~/.vscode-server/data/Machine
+
+cp \
+    "$SETTINGS_FILE" \
+    ~/.vscode-server/data/Machine/settings.json
+
+echo ""
+echo "VSCode WSL configuration completed."

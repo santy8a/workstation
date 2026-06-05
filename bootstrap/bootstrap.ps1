@@ -236,4 +236,3 @@ Write-Host "   Ubuntu-24.04"
 Write-Host "5. From WSL, open ~/dev/personal/workstation."
 Write-Host "6. Run bootstrap/bootstrap.sh inside WSL."
 Write-Host "7. Run bootstrap/install-vscode-wsl.sh inside WSL."
-```

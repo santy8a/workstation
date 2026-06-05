@@ -141,6 +141,8 @@ $Packages = @(
     # Daily Windows utilities
     @{ Id = "Notepad++.Notepad++"; Name = "Notepad++" },
     @{ Id = "Greenshot.Greenshot"; Name = "Greenshot" },
+    @{ Id = "Adobe.Acrobat.Reader.64-bit"; Name = "Adobe Acrobat Reader" },
+    @{ Id = "WinSCP.WinSCP"; Name = "WinSCP" },
 
     # Network / Legacy troubleshooting
     @{ Id = "PuTTY.PuTTY"; Name = "PuTTY" },
@@ -233,3 +235,5 @@ Write-Host "   WSL: Connect to WSL using Distro..."
 Write-Host "   Ubuntu-24.04"
 Write-Host "5. From WSL, open ~/dev/personal/workstation."
 Write-Host "6. Run bootstrap/bootstrap.sh inside WSL."
+Write-Host "7. Run bootstrap/install-vscode-wsl.sh inside WSL."
+```

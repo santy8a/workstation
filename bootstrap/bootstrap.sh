@@ -208,6 +208,52 @@ else
   curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 fi
 
+log "Instalando tun2socks"
+if is_linux_binary tun2socks; then
+  echo "[OK] tun2socks ya está instalado: $(command -v tun2socks)"
+  tun2socks --version || true
+else
+  TUN2SOCKS_VERSION="v2.6.0"
+  TUN2SOCKS_URL="https://github.com/xjasonlyu/tun2socks/releases/download/${TUN2SOCKS_VERSION}/tun2socks-linux-amd64.zip"
+  TMP_DIR="$(mktemp -d)"
+
+  echo "[INSTALL] tun2socks ${TUN2SOCKS_VERSION}"
+  curl -fsSL "$TUN2SOCKS_URL" -o "$TMP_DIR/tun2socks.zip"
+  unzip -o "$TMP_DIR/tun2socks.zip" -d "$TMP_DIR"
+
+  sudo install -m 0755 "$TMP_DIR/tun2socks-linux-amd64" /usr/local/bin/tun2socks
+
+  rm -rf "$TMP_DIR"
+
+  echo "[OK] tun2socks instalado: $(command -v tun2socks)"
+  tun2socks --version || true
+fi
+
+log "Instalando MongoDB tools para Atlas"
+
+MONGODB_KEYRING="/usr/share/keyrings/mongodb-server-8.0.gpg"
+MONGODB_LIST="/etc/apt/sources.list.d/mongodb-org-8.0.list"
+UBUNTU_CODENAME="$(lsb_release -cs)"
+
+if ! dpkg -s mongodb-mongosh >/dev/null 2>&1 || ! dpkg -s mongodb-database-tools >/dev/null 2>&1; then
+  echo "[INSTALL] Configurando repositorio oficial MongoDB 8.0"
+
+  if [[ ! -f "$MONGODB_KEYRING" ]]; then
+    curl -fsSL https://pgp.mongodb.com/server-8.0.asc | \
+      sudo gpg --dearmor -o "$MONGODB_KEYRING"
+  fi
+
+  echo "deb [ arch=amd64,arm64 signed-by=$MONGODB_KEYRING ] https://repo.mongodb.org/apt/ubuntu ${UBUNTU_CODENAME}/mongodb-org/8.0 multiverse" | \
+    sudo tee "$MONGODB_LIST" >/dev/null
+
+  sudo apt-get update -y
+
+  install_apt_package mongodb-mongosh
+  install_apt_package mongodb-database-tools
+else
+  echo "[OK] MongoDB tools ya están instaladas"
+fi
+
 log "Instalando pipx"
 if is_installed pipx; then
   echo "[OK] pipx ya está instalado"
@@ -275,7 +321,13 @@ TOOLS=(
   kubens
   terraform-docs
   tflint
+  tun2socks
   psql
+  mongosh
+  mongodump
+  mongorestore
+  mongoimport
+  mongoexport
   python3
   pipx
   uv
@@ -296,7 +348,7 @@ done
 echo ""
 echo "=== Linux Native Validation ==="
 
-for tool in az kubectl kubelogin helm gh yq k9s terraform-docs tflint azd; do
+for tool in az kubectl kubelogin helm gh yq k9s terraform-docs tflint azd tun2socks mongosh mongodump mongorestore mongoimport mongoexport; do
   path="$(command -v "$tool" 2>/dev/null || true)"
 
   if [[ -z "$path" ]]; then

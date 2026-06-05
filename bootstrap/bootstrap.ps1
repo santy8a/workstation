@@ -10,12 +10,25 @@ Write-Host ""
 Write-Host "Starting Windows workstation bootstrap..." -ForegroundColor Cyan
 
 # ------------------------------------------------------------
-# Validate winget
+# Resolve winget
 # ------------------------------------------------------------
-if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-    Write-Host "winget is not available. Install 'App Installer' from Microsoft Store first." -ForegroundColor Red
+$WingetPath = $null
+
+if (Get-Command winget -ErrorAction SilentlyContinue) {
+    $WingetPath = "winget"
+}
+elseif (Test-Path "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe") {
+    $WingetPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe"
+    $env:Path += ";$env:LOCALAPPDATA\Microsoft\WindowsApps"
+}
+else {
+    Write-Host "winget is not available." -ForegroundColor Red
+    Write-Host "Install or update 'App Installer' from Microsoft Store first." -ForegroundColor Yellow
+    Write-Host "Microsoft Store package: App Installer" -ForegroundColor Yellow
     exit 1
 }
+
+Write-Host "winget found: $WingetPath" -ForegroundColor Green
 
 # ------------------------------------------------------------
 # Install package only if missing
@@ -35,7 +48,7 @@ function Install-WingetPackage {
     $isInstalled = $false
 
     try {
-        $result = winget list --id $Id --exact --accept-source-agreements 2>$null
+        $result = & $WingetPath list --id $Id --exact --accept-source-agreements 2>$null
 
         if ($LASTEXITCODE -eq 0 -and $result -match [regex]::Escape($Id)) {
             $isInstalled = $true
@@ -51,7 +64,7 @@ function Install-WingetPackage {
     else {
         Write-Host "$Name is not installed. Installing..." -ForegroundColor Green
 
-        winget install `
+        & $WingetPath install `
             --id $Id `
             --exact `
             --source winget `

@@ -189,7 +189,7 @@ ssh-load() {
 
   if [ -z "$key" ]; then
     echo "Usage: ssh-load <key>"
-    echo "Example: ssh-load id_ed25519_eci"
+    echo "Example: ssh-load id_ed25519_contoso"
     return 1
   fi
 
@@ -209,7 +209,7 @@ ssh-client() {
 
   if [ -z "$client" ]; then
     echo "Usage: ssh-client <client>"
-    echo "Example: ssh-client eci"
+    echo "Example: ssh-client contoso"
     return 1
   fi
 
@@ -233,7 +233,7 @@ vpn-up() {
 
   if [ -z "$client" ]; then
     echo "Usage: vpn-up <client>"
-    echo "Example: vpn-up eci"
+    echo "Example: vpn-up contoso"
     return 1
   fi
 
@@ -250,7 +250,7 @@ vpn-down() {
 
   if [ -z "$client" ]; then
     echo "Usage: vpn-down <client>"
-    echo "Example: vpn-down eci"
+    echo "Example: vpn-down contoso"
     return 1
   fi
 
@@ -267,7 +267,7 @@ vpn-status() {
 
   if [ -z "$client" ]; then
     echo "Usage: vpn-status <client>"
-    echo "Example: vpn-status eci"
+    echo "Example: vpn-status contoso"
     return 1
   fi
 

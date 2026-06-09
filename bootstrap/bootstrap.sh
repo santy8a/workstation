@@ -55,6 +55,7 @@ BASE_PACKAGES=(
   unzip
   zip
   git
+  git-filter-repo
   jq
   tree
   htop
@@ -158,6 +159,14 @@ else
 
   sudo apt-get update -y
   sudo apt-get install -y gh
+fi
+
+log "Verificando git-filter-repo"
+if is_installed git-filter-repo; then
+  echo "[OK] git-filter-repo ya está instalado: $(command -v git-filter-repo)"
+else
+  echo "[INSTALL] git-filter-repo"
+  install_apt_package git-filter-repo
 fi
 
 log "Instalando yq"
@@ -308,6 +317,7 @@ log "Verificación final"
 
 TOOLS=(
   git
+  git-filter-repo
   gh
   az
   terraform
@@ -348,7 +358,7 @@ done
 echo ""
 echo "=== Linux Native Validation ==="
 
-for tool in az kubectl kubelogin helm gh yq k9s terraform-docs tflint azd tun2socks mongosh mongodump mongorestore mongoimport mongoexport; do
+for tool in az kubectl kubelogin helm gh git-filter-repo yq k9s terraform-docs tflint azd tun2socks mongosh mongodump mongorestore mongoimport mongoexport; do
   path="$(command -v "$tool" 2>/dev/null || true)"
 
   if [[ -z "$path" ]]; then
